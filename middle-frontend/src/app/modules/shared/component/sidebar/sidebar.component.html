@@ -1,0 +1,109 @@
+<div class="sidenav" [ngClass]="collapsed ? 'sidenav-collapsed':''">
+  <div class="logo-container mt-2">
+    <div class="logo-text" *ngIf="collapsed" @fadeInOut>
+      <img alt="Card" src="assets/img/logo_eburtis.png" [style]="{'width': '50%','height': '60px'}">
+
+    </div>
+
+    <!-- <div  class="mt-5 text-center px-3">
+      <h6>{{collapsed ? 'E-CONSULTATION' : ''}}</h6>
+    </div>  -->
+
+    <i class=" logo pi pi-align-justify text-50 hover:text-orange-500" (click)="toggleCollapse()"></i>
+  </div> 
+  <div class="col text-center">
+    <br>
+    <h1 [style]="{' font-weight':'blod'}">Middle </h1>
+
+  </div>
+
+
+  <ul class="sidenav-nav">
+    <li class="sidenav-nav-item" *ngFor="let data of navData">
+      <a class="sidenav-nav-link" (click)="handleClick(data)"
+         [ngClass]="{'active': isResultat()}"
+         *ngIf="data.items && data.items.length > 0">
+        <em class="sidenav-link-icon"
+            [pTooltip]="!collapsed ? data.label : ''"
+            [class]="data.icon"
+            (click)="toggleAdminItems()">
+        </em>
+        <span class="sidenav-link-text" @fadeInOut *ngIf="collapsed">
+							{{ data.label}}
+						</span>
+        <em *ngIf="data.items && collapsed" class="menu-collapse-icon"
+            [ngClass]="!data.expanded ? 'fa fa-angle-right':'fa fa-angle-down'"></em>
+      </a>
+      <a class="sidenav-nav-link"
+         *ngIf="!data.items || (data.items && data.items.length===0)"
+         [routerLink]="[data.routerlink]"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact:true}">
+        <em class="sidenav-link-icon" [pTooltip]="!collapsed ? data.label : ''" [class]="data.icon"></em>
+        <span class="sidenav-link-text" @fadeInOut *ngIf="collapsed">
+					{{ data.label}}
+			   </span>
+      </a>
+      <div *ngIf="(collapsed && data.items && data.items.length > 0)">
+        <app-sublevel-menu [collapsed]="collapsed"
+                           [data]="data"
+                           [expanded]="data.expanded"
+                           [multiple]="multiple">
+        </app-sublevel-menu>
+      </div>
+    </li>
+    <div CLASS="mt-5 text-center px-3">
+    <div class="btn-deconnexion">
+      <div ngbDropdown>
+        <button class="btn" id="glg" ngbDropdownToggle><em class="sidenav-link-icon pi pi-user font-bold text-white"
+                                                           [pTooltip]="!collapsed ? (utilisateur?.prenoms + ' ' + utilisateur?.nom | titlecase) : ''"></em>
+          <span  class="sidenav-link-text font-bold text-white text-lg ml-2 "  @fadeInOut *ngIf="collapsed">
+          {{ (utilisateur?.prenoms + ' ' + utilisateur?.nom).length < 13 ? (utilisateur?.prenoms + ' ' + utilisateur?.nom) : (utilisateur?.prenoms + ' ' + utilisateur?.nom).substr(0, 13) + "..."  }}
+				</span>
+        </button>
+        <div ngbDropdownMenu="glg">
+          <button ngbDropdownItem (click)="ouvrirModaleChangerDeMotPasse()">Changer mot de passe</button>
+          <button ngbDropdownItem (click)="deconnecter()">Se déconnecter</button>
+        </div>
+      </div>
+
+
+    </div>
+    </div>
+  </ul>
+
+
+
+</div>
+
+
+
+<app-reset-password [(visible)]="ouvrirModaleChangerMotPasse"
+                    [login]="utilisateur?.username">
+
+</app-reset-password>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

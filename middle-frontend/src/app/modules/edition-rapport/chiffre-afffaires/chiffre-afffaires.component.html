@@ -1,0 +1,395 @@
+<div>
+  <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+</div>
+<div class="row mt-1">
+    <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+    <div class="card col-12">
+        <p-toolbar styleClass="mb-4 gap-2">
+            <ng-template pTemplate="left">
+                <div>
+                    <p-calendar
+                      #periode
+                      (onSelect)="onSelectDate()"
+                      [(ngModel)]="periodesSelectionnees"
+                      [multipleSeparator]="'/'"
+                      selectionMode="range"
+                      placeholder="Choisir une période"
+                      [readonlyInput]="true"
+                      appendTo="body"
+                      [monthNavigator]="true"
+                      [yearNavigator]="true"
+                      [icon]="periode.overlayVisible ? 'pi pi-times' : 'pi pi-calendar'"
+                      [showButtonBar]="true"
+                      dateFormat="dd/mm/yy"
+                      [showIcon]="true"></p-calendar>
+                  </div>
+                  <div class="pull-right boutonValiderVider">
+                    <button [disabled]="!peutRechercher()" pButton pRipple type="button"
+                            icon="pi pi-search"
+                            pTooltip="Rechercher"
+                            class="p-button-rounded p-button-raised bg-green-600 p-button-text text-50 hover:bg-orange-400 p-button-sm"
+                            (click)="rechercher()">
+                    </button>
+                    <button pButton pRipple type="button"
+                            icon="pi pi-times"
+                            pTooltip="Vider"
+                            class="p-button-rounded p-button-raised bg-orange-400 p-button-text text-50 hover:bg-green-600 p-button-sm"
+                            (click)="viderfiltre()" >
+                    </button>
+                  </div>
+            </ng-template>
+            <ng-template pTemplate="right">
+              <p-button [disabled]="!peutRechercher()" (onClick)="impremerChiffreAffaire()"  class="mr-5" icon="pi pi-print" label="Imprimer" [style]="{color:'white',background:'#E67B3B', border: 'none'}"></p-button>
+              <p-button (onClick)="showModalDialog()" icon="pi pi-upload" label="Exporter"  [style]="{color:'white',border:'#E67B3B',background:'#E67B3B'}"></p-button>
+            </ng-template>
+        </p-toolbar>
+      <p-table #dt1 [value]="chiffreAffaires" styleClass="p-datatable-gridlines" sortField="dateConsultation" [scrollable]="true" [tableStyle]="{'min-width': '10rem'}"
+       [rows]="12" [paginator]="true" scrollHeight="500px" [sortOrder]="-1" [rowsPerPageOptions]="[10,25,50]">
+        <ng-template   pTemplate="header"  let-columns>
+          <tr >
+            <th class="text-center" style="width:300px">Date de souscription <p-sortIcon field="dateConsultation"></p-sortIcon></th>
+            <th class="text-center" style="width:170px">Opérateur<p-sortIcon field="operateur"></p-sortIcon></th>
+            <th class="text-center" style="width:250px" >Nombre de souscription<p-sortIcon field="nombreConsultations"></p-sortIcon></th>
+            <th class="text-center" >Coût unitaire facturé<p-sortIcon field="coutUnitaireFacture"></p-sortIcon></th>
+            <th class="text-center" >Recette totale<p-sortIcon field="recetteTotal"></p-sortIcon></th>
+            <th class="text-center" >Revenu eburtis<p-sortIcon field="revenuEburtis"></p-sortIcon></th>
+            <th class="text-center" style="width: 11%;">Actions</th>
+          </tr>
+          <tr >
+            <th>
+              <input pInputText type="text" style="width: 100%;" (input)="dt1.filter($any($event.target).value, 'dateConsultation', 'contains')" [value]="$any(dt1.filters['dateConsultation'])?.value"  placeholder="" class="p-column-filter">
+            </th>
+            <th>
+              <p-columnFilter field="operateur" matchMode="equals" [showMenu]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown [ngModel]="value" [options]="listeOperateur" appendTo="body" (onChange)="filter($event.value)" placeholder="TOUS" [showClear]="true">
+                        <ng-template let-option pTemplate="item">
+                            <span [class]="option">{{option}}</span>
+                        </ng-template>
+                    </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th>
+              <input pInputText type="text" style="width: 100%;" (input)="dt1.filter($any($event.target).value, 'nombresConsultations', 'contains')" [value]="$any(dt1.filters['nombreConsultations'])?.value"  placeholder="" class="p-column-filter">
+            </th>
+            <th>
+            <input pInputText type="text" style="width: 100%;" (input)="dt1.filter($any($event.target).value, 'coutUnitairesFacture', 'contains')" [value]="$any(dt1.filters['coutUnitaireFacture'])?.value"  placeholder="" class="p-column-filter">
+            </th>
+            <th>
+                <input pInputText type="text"  (input)="dt1.filter($any($event.target).value, 'recetteTotal', 'contains')" [value]="$any(dt1.filters['recetteTotal'])?.value"  placeholder="" class="p-column-filter">
+            </th>
+            <th>
+                <input pInputText type="text"style="width: 100%;" (input)="dt1.filter($any($event.target).value, 'revenuEburtis', 'contains')" [value]="$any(dt1.filters['revenuEburtis'])?.value"  placeholder="" class="p-column-filter">
+            </th>
+            <th>
+
+            </th>
+          </tr>
+        </ng-template>
+
+       <ng-template pTemplate="body" let-chiffreAffaire>
+            <tr style="height: 45px !important;">
+                <td class="text-center">{{chiffreAffaire.dateConsultation}}</td>
+                <td class="text-center">{{chiffreAffaire.operateur}}</td>
+                <td class="text-right">{{chiffreAffaire.nombresConsultations | number: '1.0-0' | replace: ',':' '}}</td>
+                <td class="text-right">{{chiffreAffaire.coutUnitairesFacture | number: '1.0-0' | replace: ',':' ' }}</td>
+                <td class="text-right">{{chiffreAffaire.recetteTotal | number: '1.0-0' | replace: ',':' '}}</td>
+                <td class="text-right">{{chiffreAffaire.revenuEburtis | number: '1.0-0' | replace: ',':' ' }}</td>
+                <td >
+                  <i  class="pi pi-eye hover:bg-orange-400 border-round p-2 ml-5"
+                    (click)="initialisationVoirplus(chiffreAffaire)" aria-hidden="true" title="Détails"></i>
+                  <i class="pi pi-print hover:bg-orange-400 border-round p-2 ml-5"
+                  (click)="impremerDetailsChiffreAffaire(chiffreAffaire.operateur)" aria-hidden="true" title="Imprimer" ></i>
+
+                </td>
+
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td class="text-center" colspan="7" >Aucun chiffre d'affaire trouvé.</td>
+            </tr>
+        </ng-template>
+      </p-table>
+      <p-dialog header="Choisir le format d'exportation " [(visible)]="displayModal" [modal]="true" [style]="{width: '20vw',height:'10vw'}" [baseZIndex]="10000"
+             [draggable]="false" [resizable]="false">
+              <div class="text-center">
+                <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success mr-5"  pTooltip="Export XLS" tooltipPosition="bottom">Excel</button>
+                <button  type="button" pButton pRipple icon="pi pi-file" class="p-button-warning mr-2" pTooltip="Export CSV" tooltipPosition="bottom" (click)="exportCSV()">Csv</button>
+              </div>
+      </p-dialog>
+    </div>
+</div>
+
+
+
+<p-dialog [resizable]="false" [modal]="true"  [maximizable]="true" appendTo="body"
+        [(visible)]="dialogDetailMTN" [style]="{width: '75vw'}" [contentStyle]="{height: '700px'}">
+       <p-header style="font-weight: bold; font-size: 1em;">
+          <span>{{operateurSelectionne}} : </span> Chiffre d'affaires  <span>{{dateSelectionnee}}</span>
+       </p-header>
+
+        <div class="flex justify-content-between mt-1 mb-3" >
+          <p-table [value]="chiffreAffaireSel" styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex">
+            <ng-template pTemplate="header">
+              <tr>
+                  <th>Description</th>
+                  <th>Valeur</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-chiffre>
+              <tr>
+                <td style="min-width:50px">Coût de la souscription ( <span style="font-weight: bold;"> A</span> )</td>
+                <td class="text-right">{{chiffre.coutUnitairesFacture | number: '1.0-0' | replace: ',':' '}} FCFA</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Nombre de souscriptions ( <span style="font-weight: bold;"> B</span> ) </td>
+                <td class="text-right">{{chiffre.nombresConsultations | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taux sharing Opérateur </td>
+                <td class="text-right">{{chiffre.pourcentageSharing | number: '1.0-0' | replace: ',':' '}} %</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taux Sharing eburtis</td>
+                <td class="text-right">{{tauxSharingEburtis | number: '1.0-0' | replace: ',':' ' }} % </td>
+              </tr>
+            </ng-template>
+        </p-table>
+        </div>
+        <p-table [value]="chiffreAffaireSel" styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex">
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th>Description</th>
+                  <th>Montant ( FCFA )</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-chiffre>
+              <tr>
+                <td style="min-width:50px; font-weight: bold;">Recette (R = A * B) </td>
+                <td class="text-right">{{chiffre.recetteTotal | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px;">Charges opérateur  </td>
+                <td class="text-right"></td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">TVA ( {{chiffre.chargeMtnDto.mtnTauxTVA}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeTVADeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Redevance réglementaire ( {{chiffre.chargeMtnDto.mtnTauxRedevanceReglementaire}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeRedevanceReglementaireDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Coût distribution ( {{chiffre.chargeMtnDto.mtnTauxCoutDistribution}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeCoutDistributionDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Frais de transport  ( {{chiffre.chargeMtnDto.mtnTauxFraisTransport}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeFraisTransportDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Maintenance ( {{chiffre.chargeMtnDto.mtnTauxChargeMaintenance}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeChargeMaintenanceDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Frais de gestion ( {{chiffre.chargeMtnDto.mtnTauxFraisGestion}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeFraisGestionDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Publicité ( {{chiffre.chargeMtnDto.mtnTauxPublicite}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargePubliciteDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taxe télécoms ( {{chiffre.chargeMtnDto.mtnTauxTaxeTelecoms}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeTaxeTelecomsDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Retenue import ( {{chiffre.chargeMtnDto.mtnTauxRetenuImport}} % )</td>
+                <td class="text-right">{{chiffre.chargeMtnDto.mtnChargeRetenuImportDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Total Charges à déduire (TC)  </td>
+                <td class="text-right">{{chiffre.totalChargesADeduire | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Total Hors taxes  ( <span style="font-weight: bold;"> HT = R - TC</span> ) </td>
+                <td class="text-right">{{chiffre.montantHorsTaxe | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Revenu MTN = ( <span style="font-weight: bold;"> {{chiffre.pourcentageSharing}} % de HT</span> ) </td>
+                <td class="text-right">{{chiffre.revenuOperateur | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Revenu EBURTIS = ( <span style="font-weight: bold;"> {{tauxSharingEburtis}} % de HT</span> ) </td>
+                <td class="text-right">{{chiffre.revenuEburtis | number: '1.0-0' | replace: ',':' '}} </td>
+              </tr>
+            </ng-template>
+        </p-table>
+        <ng-template pTemplate="footer">
+            <button  type="button" pButton pRipple icon="pi pi-times" (click)="closeVoirPlus()" label="Fermer" class="p-button-text"></button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog header="Plus de détails" [resizable]="false" [modal]="true"  [maximizable]="true" appendTo="body"
+        [(visible)]="dialogDetailORANGE" [style]="{width: '75vw'}" [contentStyle]="{height: '600px'}">
+        <p-header style="font-weight: bold; font-size: 1em;">
+          <span>{{operateurSelectionne}} : </span> Chiffre d'affaires  <span>{{dateSelectionnee}}</span>
+       </p-header>
+        <div class="flex justify-content-between mt-1 mb-3" >
+          <p-table [value]="chiffreAffaireSel" styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex">
+            <ng-template pTemplate="header" let-columns >
+              <tr>
+                <th>Description</th>
+                <th>Valeur</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-chiffre>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Coût de la souscription ( <span style="font-weight: bold;"> A</span> )</td>
+                <td class="text-right">{{chiffre.coutUnitairesFacture | number: '1.0-0' | replace: ',':' '}} FCFA</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Nombre de souscriptions ( <span style="font-weight: bold;"> B</span> ) </td>
+                <td class="text-right">{{chiffre.nombresConsultations | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taux sharing Opérateur </td>
+                <td class="text-right">{{chiffre.pourcentageSharing}} % </td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taux Sharing eburtis</td>
+                <td class="text-right">{{tauxSharingEburtis}} % </td>
+              </tr>
+            </ng-template>
+        </p-table>
+        </div>
+        <p-table [value]="chiffreAffaireSel" styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex">
+            <ng-template pTemplate="header" let-columns >
+              <tr>
+                <th>Description</th>
+                <th>Montant ( FCFA ) </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-chiffre>
+              <tr  style="font-weight: bold;">
+                <td style="min-width:50px; ">Recette (R = A * B) </td>
+                <td class="text-right">{{chiffre.recetteTotal | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">TVA ( {{chiffre.chargeOrangeDto.orangeTauxTVA}} % )</td>
+                <td class="text-right">{{chiffre.chargeOrangeDto.orangeChargeTVADeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">TSC ( {{chiffre.chargeOrangeDto.orangeTauxTSC}} % )</td>
+                <td class="text-right">{{chiffre.chargeOrangeDto.orangeChargeTSCDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">SVA ( {{chiffre.chargeOrangeDto.orangeTauxSVA}} % )</td>
+                <td class="text-right">{{chiffre.chargeOrangeDto.orangeChargeSVADeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Total Charges à déduire (TC)  </td>
+                <td class="text-right">{{chiffre.totalChargesADeduire | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Total Hors taxes  ( <span style="font-weight: bold;"> HT = R - TC</span> ) </td>
+                <td class="text-right">{{chiffre.montantHorsTaxe | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Revenu ORANGE = ( <span style="font-weight: bold;"> {{chiffre.pourcentageSharing}} % de HT</span> ) </td>
+                <td class="text-right">{{chiffre.revenuOperateur | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Revenu EBURTIS = ( <span style="font-weight: bold;"> {{tauxSharingEburtis}} % de HT</span> ) </td>
+                <td class="text-right">{{chiffre.revenuEburtis | number: '1.0-0' | replace: ',':' '}} </td>
+              </tr>
+
+
+            </ng-template>
+        </p-table>
+        <ng-template pTemplate="footer">
+            <button  type="button" pButton pRipple icon="pi pi-times" (click)="closeVoirPlus()" label="Fermer" class="p-button-text"></button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog header="Plus de détails" [resizable]="false" [modal]="true"  [maximizable]="true" appendTo="body"
+        [(visible)]="dialogDetailMOOV" [style]="{width: '75vw'}" [contentStyle]="{height: '700px'}">
+        <p-header style="font-weight: bold; font-size: 1em;">
+          <span>{{operateurSelectionne}} : </span> Chiffre d'affaires  <span>{{dateSelectionnee}}</span>
+       </p-header>
+        <div class="flex justify-content-between mt-1 mb-3" >
+          <p-table [value]="chiffreAffaireSel" styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex">
+            <ng-template pTemplate="header" let-columns >
+              <tr>
+                <th>Description</th>
+                <th>Valeur</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-chiffre>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Coût de la souscription ( <span style="font-weight: bold;"> A</span> )</td>
+                <td class="text-right">{{chiffre.coutUnitairesFacture | number: '1.0-0' | replace: ',':' '}} FCFA</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Nombre de souscriptions ( <span style="font-weight: bold;"> B</span> ) </td>
+                <td class="text-right">{{chiffre.nombresConsultations | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taux sharing Opérateur </td>
+                <td class="text-right">{{chiffre.pourcentageSharing}} %</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Taux Sharing eburtis</td>
+                <td class="text-right">{{tauxSharingEburtis}} %</td>
+              </tr>
+            </ng-template>
+        </p-table>
+        </div>
+        <p-table [value]="chiffreAffaireSel" styleClass="p-datatable-gridlines"  scrollHeight="flex">
+            <ng-template pTemplate="header">
+                <tr>
+                  <th>Description</th>
+                  <th>Montant ( FCFA )</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-chiffre>
+              <tr style=" font-weight: bold;">
+                <td style="min-width:50px;">Recette (R = A * B)</td>
+                <td class="text-right">{{chiffre.recetteTotal | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">TVA ( {{chiffre.chargeMoovDto.moovTauxTVA}} % )</td>
+                <td class="text-right">{{chiffre.chargeMoovDto.moovChargeTVADeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr>
+                <td style="min-width:50px">Autres charges ( {{chiffre.chargeMoovDto.moovTauxAutre}} % )</td>
+                <td class="text-right">{{chiffre.chargeMoovDto.moovChargeAutreDeduite | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Total Charges à déduire (TC)  </td>
+                <td class="text-right">{{chiffre.totalChargesADeduire | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Total Hors taxes  ( <span style="font-weight: bold;"> HT = R - TC </span> ) </td>
+                <td class="text-right">{{chiffre.montantHorsTaxe | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Revenu MOOV = ( <span style="font-weight: bold;"> {{chiffre.pourcentageSharing}} % de HT</span> ) </td>
+                <td class="text-right">{{chiffre.revenuOperateur | number: '1.0-0' | replace: ',':' '}}</td>
+              </tr>
+              <tr style="font-weight: bold;">
+                <td style="min-width:50px">Revenu EBURTIS = ( <span style="font-weight: bold;"> {{tauxSharingEburtis}} % de HT</span> ) </td>
+                <td class="text-right">{{chiffre.revenuEburtis | number: '1.0-0' | replace: ',':' '}} </td>
+              </tr>
+
+            </ng-template>
+        </p-table>
+        <ng-template pTemplate="footer">
+            <button  type="button" pButton pRipple icon="pi pi-times" (click)="closeVoirPlus()" label="Fermer" class="p-button-text"></button>
+        </ng-template>
+    </p-dialog>

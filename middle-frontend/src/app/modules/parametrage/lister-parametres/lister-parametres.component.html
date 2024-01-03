@@ -1,0 +1,136 @@
+<p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+<div class="card container-fluid mt-6">
+    <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+  <div class="row">
+    <div class="col-12">
+      <form [formGroup]="formParametrage" autocomplete="chrome-off">
+
+        <p-table #dt1 *ngIf="!isLoading"
+                 [value]="parametrages"
+                 dataKey="id"
+                 styleClass="p-datatable-gridlines"
+                 sortField="code"
+                 [scrollable]="true"
+                 [rows]="15"
+                 [paginator]="true"
+                 scrollHeight="700px"
+                 [rowsPerPageOptions]="[15,25,50]">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th class="text-center" style="width:20%" pSortableColumn="code">Code
+                <p-sortIcon field="code"></p-sortIcon>
+              </th>
+              <th class="text-center" pSortableColumn="valeur" style="width:35%;">Valeur
+                <p-sortIcon field="valeur"></p-sortIcon>
+              </th>
+              <th class="text-center" style="width:20%" pSortableColumn="designation">Description
+                <p-sortIcon field="designation"></p-sortIcon>
+              </th>
+              <th class="text-center" style="width:5%" pSortableColumn="actif">Etat
+                <p-sortIcon field="actif"></p-sortIcon>
+              </th>
+              <th class="text-center" *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'" style="width:20%">Actions
+              </th>
+            </tr>
+            <tr>
+              <th>
+                <input pInputText type="text"
+                       (input)="dt1.filter($any($event.target).value, 'code', 'contains')"
+                       [value]="$any(dt1.filters['code'])?.value"
+                       class="p-column-filter w-100">
+              </th>
+              <th>
+                <input pInputText type="text"
+                       (input)="dt1.filter($any($event.target).value, 'valeur', 'contains')"
+                       [value]="$any(dt1.filters['valeur'])?.value"
+                       class="p-column-filter w-100">
+              </th>
+              <th>
+                <input pInputText type="text" (input)="dt1.filter($any($event.target).value, 'designation', 'contains')"
+                       [value]="$any(dt1.filters['designation'])?.value"
+                       class="p-column-filter w-100">
+              </th>
+              <th>
+
+              </th>
+              <th *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'">
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-parametrage>
+            <tr [pSelectableRow]="parametrage" *ngIf="formulaireParParametrage.get(parametrage).formGroup"
+                [formGroup]="formulaireParParametrage.get(parametrage).formGroup" style="height: 45px !important;">
+              <td class="text-left">
+                {{parametrage.code }}
+              </td>
+              <td class="text-left">
+                <div  class="text-center" *ngIf="formulaireParParametrage.get(parametrage)?.ecriture else outputValeur">
+                  <p-calendar  id="FREQUENCE_ENVOI" *ngIf="parametrage.code == 'FREQUENCE_ENVOI'" formControlName="valeur" 
+                    #periode
+                    [multipleSeparator]="'/'"
+                    placeholder="Choisir la frequence d'envoi"
+                    [readonlyInput]="true"
+                    appendTo="body"
+                    [disabledDates]= "disabledDates"
+                    [icon]="periode.overlayVisible ? 'pi pi-times' : 'pi pi-calendar'"
+                    [showButtonBar]="true"
+                    
+                    [showIcon]="true" >
+                  </p-calendar> 
+                  <label for="" *ngIf="parametrage.code == 'FREQUENCE_ENVOI'"><small class="ml-6">(HH:mm)</small></label> 
+                  <p-inputMask  *ngIf="parametrage.code == 'FREQUENCE_ENVOI'"  class="Normal ml-2" formControlName = "heure" mask="**:**" characterPattern=REGEX_SAISI_ENTIER></p-inputMask>
+                  <input *ngIf="parametrage.code !== 'IMPRIMANTE_DEFAUT' && parametrage.code !== 'TYPE_ENVOI' && parametrage.code !== 'FREQUENCE_ENVOI'"  class="w-100" pInputText
+                         type="text" formControlName="valeur" maxlength="255" required>
+                  <p-dropdown *ngIf="parametrage.code === 'IMPRIMANTE_DEFAUT'" formControlName="valeur" id="imprimante" ngDefaultControl [options]="imprimantes" optionLabel="label" optionValue="value"></p-dropdown>
+                  <p-dropdown *ngIf="parametrage.code === 'TYPE_ENVOI'" formControlName="valeur" id="frequence" ngDefaultControl [options]="typeEnvoi" optionLabel="label" optionValue="value"></p-dropdown>
+                </div>
+
+                <ng-template #outputValeur>
+                  {{parametrage.valeur }}
+                </ng-template>
+              </td>
+              <td class="text-left">
+                <input *ngIf="formulaireParParametrage.get(parametrage)?.ecriture else outputDesignation" class="w-100" pInputText
+                       type="text" formControlName="designation" maxlength="255" required>
+                <ng-template #outputDesignation>
+                  {{parametrage.designation }}
+                </ng-template>
+              </td>
+              <td class="text-center">
+                <p-inputSwitch *ngIf="formulaireParParametrage.get(parametrage)?.ecriture else outputEtat" formControlName="actif" ></p-inputSwitch>
+                <ng-template #outputEtat>
+                  <i *ngIf="parametrage.actif" class="fa fa-check"
+                  aria-hidden="true" ></i>
+
+                </ng-template>
+              </td>
+              <td (click)="$event.stopPropagation()" *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'" class="text-center">
+                <i *ngIf="!formulaireParParametrage.get(parametrage).ecriture" class="fa fa-pencil hover:bg-orange-400 border-round p-2 ml-5"
+                  aria-hidden="true" title="Modfier" (click)="initialiserModification(parametrage)"></i>
+
+                <i *ngIf="formulaireParParametrage.get(parametrage).ecriture" class="fa fa-check hover:bg-orange-400 border-round p-2 ml-5"
+                  aria-hidden="true" title="Enregistrer" [attr.disabled]="formParametrage.invalid" (click)="enregistrer(parametrage)"></i>
+
+                <i *ngIf="formulaireParParametrage.get(parametrage).ecriture" class="fa fa-ban hover:bg-orange-400 border-round p-2 ml-5"
+                  aria-hidden="true" title="Annuler" (click)="annulerModification(parametrage)"></i>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center">Aucune paramètre trouvé.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </form>
+      <div class="text-center">
+        <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+      </div>
+    </div>
+
+  </div>
+</div>

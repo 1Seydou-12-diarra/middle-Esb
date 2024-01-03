@@ -1,0 +1,226 @@
+<div>
+  <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+</div>
+<div class="col-12">
+   <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+    <div class="container-fluid mt-2 ">
+      <div class="row">
+        <div class="cadre-nombre col-xl-4 col-md-6 col-sm-12 p-1 ">
+          <div class="surface-card shadow-5 p-2 border-round">
+            <div class="flex justify-content-between mb-3">
+              <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                   style="width:4rem;height:4rem">
+                <i class="fa fa-users" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+              </div>
+              <div>
+                <h2>{{ utilisateurTableau?.totalUtilisateurs | number: '1.0-0' | replace: ',':' ' }}</h2>
+              </div>
+            </div>
+            <div class="text-center">
+              <span>Total utilisateurs</span>
+            </div>
+          </div>
+        </div>
+        <div class="cadre-nombre col-xl-4 col-md-6 col-sm-12 p-1 ">
+          <div class="surface-card shadow-5 p-2 border-round">
+            <div class="flex justify-content-between mb-3">
+              <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                   style="width:4rem;height:4rem">
+                <i class="fa fa-check" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+              </div>
+              <div>
+                <h2>{{ utilisateurTableau?.utilisateurActifs | number: '1.0-0' | replace: ',':' ' }}</h2>
+              </div>
+            </div>
+            <div class="text-center">
+              <span>Utilisateurs actifs</span>
+            </div>
+          </div>
+        </div>
+        <div class="cadre-nombre col-xl-4 col-md-6 col-sm-12 p-1 ">
+          <div class="surface-card shadow-5 p-2 border-round">
+            <div class="flex justify-content-between mb-3">
+              <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                   style="width:4rem;height:4rem">
+                <i class="fa fa-exclamation-circle" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+              </div>
+              <div>
+                <h2>{{ utilisateurTableau?.utilisateurInactif | number: '1.0-0' | replace: ',':' ' }}</h2>
+              </div>
+            </div>
+            <div class="text-center">
+              <span>Utilisateurs inactifs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<div class="row">
+    <div class="card col-12">
+        <p-toolbar styleClass="mb-4 gap-2" *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'">
+            <ng-template pTemplate="left">
+
+            </ng-template>
+            <ng-template pTemplate="right">
+                <p-button  icon="pi pi-user" label="Ajouter" (onClick)="openUtilisateurdialog()" [style]="{color:'white',border:'#E67B3B', background:'#E67B3B'}"></p-button>
+                <p-button icon="pi pi-user-edit" class="ml-2" label="Modifier" [disabled]="!utilisateurSelectonne" (onClick)="modifier(utilisateurSelectonne)" [style]="{color:'white',border:'#E67B3B', background:'#E67B3B'}"></p-button>
+            </ng-template>
+        </p-toolbar>
+      <p-table #dt1 [value]="utilisateurTableau?.utilisateurs" dataKey="username" [(selection)]="utilisateurSelectonne" [rowHover]="true"
+               styleClass="p-datatable-gridlines" sortField="nom" [scrollable]="true" [tableStyle]="{'min-width': '10rem'}"
+               [rows]="12" [paginator]="true" selectionMode="single" scrollHeight="700px" [rowsPerPageOptions]="[10,25,50]">
+        <ng-template   pTemplate="header"  let-columns>
+          <tr >
+<!--            <th style="width: 4rem">-->
+<!--                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>-->
+<!--            </th>-->
+<!--            <th style="width:500px" pSortableColumn="dateDebut">Code<p-sortIcon field="dateDebut"></p-sortIcon></th>-->
+            <th class="text-center" style="width:300px" pSortableColumn="nom" >Nom <p-sortIcon field="nom"></p-sortIcon></th>
+            <th class="text-center" style="width:300px"  pSortableColumn="prenoms">Prenoms<p-sortIcon field="prenoms"></p-sortIcon></th>
+            <th  class="text-center" style="width:200px" pSortableColumn="profil">Profil<p-sortIcon field="profil"></p-sortIcon></th>
+            <th  class="text-center" style="width:300px"  pSortableColumn="username">Login<p-sortIcon field="username"></p-sortIcon></th>
+            <th class="text-center" style="width:500px" pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
+            <th  class="text-center" style="width:200px" pSortableColumn="statut">Statut<p-sortIcon field="statut"></p-sortIcon></th>
+            <th  class="text-center" class="text-center" *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'" style="width:100px">Actions</th>
+          </tr>
+          <tr >
+<!--            <th>-->
+<!--            </th>-->
+            <th>
+              <input pInputText type="text" style="width: 100%;"(input)="dt1.filter($any($event.target).value, 'nom', 'contains')" [value]="$any(dt1.filters['nom'])?.value" class="p-column-filter">
+            </th>
+            <th>
+              <input pInputText type="text" (input)="dt1.filter($any($event.target).value, 'prenoms', 'contains')" [value]="$any(dt1.filters['prenoms'])?.value" class="p-column-filter">
+            </th>
+            <th>
+              <p-columnFilter field="profil" matchMode="equals" [showMenu]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                  <p-dropdown [ngModel]="value" [options]="roles" appendTo="body"
+                              (onChange)="filter($event.value)" placeholder="TOUS" [showClear]="true">
+                    <ng-template let-option pTemplate="item">
+                      <span [class]="option">{{option}}</span>
+                    </ng-template>
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th>
+              <input pInputText type="text" style="width: 100%;" (input)="dt1.filter($any($event.target).value, 'username', 'contains')" [value]="$any(dt1.filters['username'])?.value"  class="p-column-filter">
+            </th>
+            <th></th>
+            <th>
+              <p-columnFilter field="statut" matchMode="equals" [showMenu]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                  <p-dropdown [ngModel]="value" [options]="statuts" appendTo="body"
+                              (onChange)="filter($event.value)" placeholder="TOUS" [showClear]="true">
+                    <ng-template let-option pTemplate="item">
+                      <span [class]="option">{{option}}</span>
+                    </ng-template>
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'">
+            </th>
+          </tr>
+        </ng-template>
+
+       <ng-template pTemplate="body" let-util>
+            <tr class="p-selectable-row" [pSelectableRow]="util" style="height: 45px !important;">
+<!--                <td>-->
+<!--                    <p-tableCheckbox [value]="util"></p-tableCheckbox>-->
+<!--                </td>-->
+                <td >{{util.nom }}</td>
+                <td >{{util.prenoms }}</td>
+                <td ><span [class]="util.profil">{{util.profil}}</span></td>
+                <td >{{util.username}}</td>
+                <td >{{util.email}}</td>
+                <td ><span [class]="util.statut">{{util.statut}}</span></td>
+              <td *ngIf="utilisateurConnecte.profil === 'SUPER_ADMIN'">
+                <i class="pi pi-user-edit hover:bg-orange-400 border-round p-2 ml-5"
+                  aria-hidden="true" title="Modfier" (click)="modifier(util)"></i>
+              </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7"  style="text-align:center;">Aucun utilisateur trouvé.</td>
+            </tr>
+        </ng-template>
+      </p-table>
+    </div>
+</div>
+
+
+<p-dialog [(visible)]="ouvrirModaleSaisieUtilisateur" (onHide)="fermerModale()" [style]="{width: '550px'}" header=" Ajouter/Modifier utilisateur" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form  [formGroup]="utilisateurForm">
+        <div class="row">
+          <div class="col-6 col-sm-12">
+            <div class="field"> 
+              <label for="nom" class="label-required">Nom</label>
+              <input type="text" pInputText id="nom" placeholder="Nom" formControlName="nom" required autofocus />
+            </div>
+          </div>   
+          <div class="col-6 col-sm-12">
+            <div class="field">
+              <label for="prenom" class="label-required">Prénoms</label>
+              <input type="text" pInputText id="prenom" placeholder="Prenoms"  formControlName="prenoms" required autofocus />
+            </div>
+          </div>
+      </div>
+        <div class="row">
+          <div class="col-6 col-sm-12">
+            <div class="field">
+              <label for="profil" class="label-required">Profil</label>
+              <p-dropdown formControlName="profil" id="profil" ngDefaultControl [options]="rolesSelect" optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+          </div>
+          <div class="col-6 col-sm-12">
+            <div class="field">
+              <label for="statut" class="label-required">Statut</label>
+              <p-dropdown formControlName="statut" id="statut" ngDefaultControl [options]="statutSelect" optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-sm-12">
+          <div class="field">
+            <label for="email"  class="label-required">Email</label>
+            <input type="text"  [readonly]="readonlyEmailLogin" pInputText id="email" placeholder="Email" formControlName="email" required autofocus />
+          </div>
+        </div> 
+        <div class="col-6 col-sm-12">
+          <div class="field">
+            <label for="username"  class="label-required">Login</label>
+            <input type="text" [readonly]="readonlyEmailLogin" pInputText id="username" placeholder="Login" formControlName="username" required autofocus />
+          </div>
+        </div>
+      </div>
+      <div class="field">
+      </div>
+
+      <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="text-center" *ngIf="isLoading">
+      <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+    </div>
+    <div *ngIf="!isLoading">
+      <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="fermerModale()" ></button>
+      <button pButton pRipple label="Valider" type="submit" icon="pi pi-check" class="p-button-text"
+              (click)="onSaveUtilisateur()"
+              [disabled]="utilisateurForm.invalid || isLoading"></button>
+    </div>
+  </ng-template>
+</p-dialog>

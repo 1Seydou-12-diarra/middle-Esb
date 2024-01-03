@@ -1,0 +1,287 @@
+<div>
+    <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+</div>
+
+<div class="grid tableau-bord mt-1">
+  <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+    <div class="surface-card shadow-3  border-round" [style]="{width: '2000px',height: '100px'}" id="table">
+        <div class="col-12">
+            <div class="flex justify-content-between flex-wrap">
+                <div>
+                    <div>
+                        <label class="label-required">Département</label>
+                    </div>
+                    <p-multiSelect
+                            [style]="{width: '250px', marginRight:'2px', marginTop:'0px'}"
+                            [options]="choixFiltreDepartements"
+                            [disabled]=""
+                            [(ngModel)]="departementsSelectionnees"
+                            defaultLabel="Choisir..."
+                            emptyFilterMessage="Aucun département trouvée"
+                            (onChange)="onSelectionDepartement($event.value)"
+                            selectedItemsLabel="{0} sélectionnés"
+                            [maxSelectedLabels]="1"
+                            optionLabel="value"
+                            dataKey="code">
+                    </p-multiSelect>
+                </div>
+
+                <div>
+                    <div>
+                        <label>Sous-préfecture</label>
+                    </div>
+                    <p-multiSelect
+                            [style]="{width: '250px', marginRight:'2px', marginTop:'0px'}"
+                            [options]="choixFiltreSousPrefectures"
+                            [disabled]="!departementsSelectionnees?.length || !choixFiltreSousPrefectures?.length"
+                            [(ngModel)]="sousPrefecturesSelectionnees"
+                            defaultLabel="Choisir..."
+                            emptyFilterMessage="Aucune sous prefecture trouvée"
+                            (onChange)="onSelectionSousPrefecture($event.value)"
+                            selectedItemsLabel="{0} sélectionnées"
+                            [maxSelectedLabels]="1"
+                            optionLabel="value"
+                            dataKey="value">
+                    </p-multiSelect>
+                </div>
+
+                <div>
+                    <div>
+                        <label>Commune</label>
+                    </div>
+                    <p-multiSelect
+                            [style]="{width: '250px', marginRight:'2px', marginTop:'0px'}"
+                            [options]="choixFiltreCommunes"
+                            [disabled]="!sousPrefecturesSelectionnees?.length || !choixFiltreCommunes?.length"
+                            [(ngModel)]="communeSelectionnees"
+                            defaultLabel="Choisir..."
+                            emptyFilterMessage="Aucune commune trouvée"
+                            (onChange)="onSelectionCommune($event.value)"
+                            selectedItemsLabel="{0} sélectionnées"
+                            [maxSelectedLabels]="1"
+                            optionLabel="value"
+                            dataKey="code">
+                    </p-multiSelect>
+                </div>
+                <div>
+                    <div>
+                        <label>Lieu de vote</label>
+                    </div>
+                    <p-multiSelect
+                            [style]="{width: '250px', marginRight:'2px', marginTop:'0px'}"
+                            [options]="choixFiltreLieuVotes"
+                            [disabled]="!communeSelectionnees?.length || !choixFiltreLieuVotes?.length"
+                            [(ngModel)]="lieuVoteSelectionnees"
+                            emptyMessage="Aucun lieu de vote trouvé"
+                            emptyFilterMessage="Aucun lieu de vote trouvé"
+                            defaultLabel="Choisir..."
+                            selectedItemsLabel="{0} sélectionnés"
+                            (onChange)="onSelectionLieuVote($event.value)"
+                            [maxSelectedLabels]="1"
+                            optionLabel="value"
+                            dataKey="code">
+                    </p-multiSelect>
+                </div>
+              <div>
+                <div>
+                  <label>Bureau de vote</label>
+                </div>
+                <p-multiSelect
+                  [style]="{width: '250px', marginRight:'2px', marginTop:'0px'}"
+                  [options]="choixFiltreBureauVotes"
+                  [disabled]="!lieuVoteSelectionnees?.length || !choixFiltreBureauVotes?.length"
+                  [(ngModel)]="bureauVoteSelectionnees"
+                  emptyMessage="Aucun bureau de vote trouvé"
+                  emptyFilterMessage="Aucun bureau de vote trouvé"
+                  defaultLabel="Choisir..."
+                  selectedItemsLabel="{0} sélectionnés"
+                  [maxSelectedLabels]="1"
+                  optionLabel="value"
+                  dataKey="code">
+                </p-multiSelect>
+              </div>
+
+
+                <div class="pull-right boutonValiderVider">
+                    <button [disabled]="desactiverBoutonFiltre()" pButton pRipple type="button"
+                            icon="pi pi-search"
+                            pTooltip="Rechercher"
+                            class="p-button-rounded ml-8 mt-4 p-button-raised  p-button-text text-50 hover:bg-orange-400 p-button-sm"
+                            (click)="validerfiltre()" style="background: green !important;">
+                    </button>
+                    <button pButton pRipple type="button"
+                            icon="pi pi-times"
+                            pTooltip="Vider"
+                            class="p-button-rounded ml-5 mt-4 p-button-raised bg-orange-400 p-button-text text-50 hover:bg-green-600 p-button-sm"
+                            (click)="viderfiltre()">
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="text-center">
+	<p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+</div>
+
+<div class="col-12" *ngIf=" tableauBord && !isLoading">
+    <div class="container-fluid  ">
+        <div class="row">
+            <div class="cadre-nombre col-xl-3 col-md-4 col-sm-12 p-1">
+                <div class="surface-card shadow-5 p-2 border-round">
+                    <div class="flex justify-content-between mb-3">
+                        <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                            style="width:4rem;height:4rem">
+                            <i class="fa fa-users" aria-hidden="true" style="font-size: 3em;color: green;"></i>
+                        </div>
+                        <div >
+                            <h2>{{ tableauBord?.totalElecteurs | number: '1.0-0' | replace: ',':' '}}</h2>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <span>Electeurs</span>
+                   </div>
+                </div>
+            </div>
+            <div class="cadre-nombre col-xl-3 col-md-4 col-sm-12 p-1 ">
+                <div class="surface-card shadow-5 p-2 border-round">
+                    <div class="flex justify-content-between mb-3">
+                        <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                             style="width:4rem;height:4rem">
+                            <i class="fa fa-male" aria-hidden="true" style="font-size: 3em;color: green;"></i>
+                        </div>
+                        <div >
+                            <h2>{{ tableauBord?.totalHommesElecteurs | number: '1.0-0' | replace: ',':' ' }}</h2>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <span>Electeurs Hommes</span>
+                   </div>
+                </div>
+            </div>
+            <div class="cadre-nombre col-xl-3 col-md-4 col-sm-12 p-1 ">
+                <div class="surface-card shadow-5 p-2 border-round">
+                    <div class="flex justify-content-between mb-3">
+                        <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                        style="width:4rem;height:4rem">
+                             <i class="fa fa-female" aria-hidden="true" style="font-size: 3em;color: green;"></i>
+                        </div>
+                        <div >
+                          <h2>{{ tableauBord?.totalFemmesElecteurs | number: '1.0-0' | replace: ',':' ' }}</h2>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                         <span >Electeurs femmes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cadre-nombre col-xl-3 col-md-4 col-sm-12 p-1 ">
+                <div class="surface-card shadow-5 p-2 border-round">
+                    <div class="flex justify-content-between mb-3">
+                        <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                             style="width:4rem;height:4rem">
+                             <i class="fa fa-plus" aria-hidden="true" style="font-size: 3em;color: green;"></i>
+                        </div>
+                        <div >
+                          <h2>{{ tableauBord?.nouveauInscrits | number: '1.0-0' | replace: ',':' '  }}</h2>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <span>Participants au recensement</span>
+                   </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 md:col-12 lg:col-12" *ngIf="tableauBord && !isLoading">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-xl-7 col-sm-12 bg-blue-50 shadow-3 p-3 ml-2 mr-6 border-round ">
+                <div id="resultatParti">
+                    <apx-chart
+                        [series]="electeurParTrancheDageChartOptions.series"
+                        [chart]="electeurParTrancheDageChartOptions.chart"
+                        [labels]="electeurParTrancheDageChartOptions.labels"
+                        [dataLabels]="electeurParTrancheDageChartOptions.dataLabels"
+                        [title]="electeurParTrancheDageChartOptions.title"
+                        [colors]="electeurParTrancheDageChartOptions.colors"
+                        [xaxis]="electeurParTrancheDageChartOptions.xaxis"
+                        [responsive]="electeurParTrancheDageChartOptions.responsive"
+                    ></apx-chart>
+                </div>
+            </div>
+            <div class="col-xl-4 col-sm-12 bg-blue-50 shadow-3 p-3  ml-7 border-round ">
+
+                <div class="justify-content-center" id="electeurParSexe" style="">
+                    <apx-chart
+                    [series]="electeursParSexeChartOptions.serie"
+                    [chart]="electeursParSexeChartOptions.chart"
+                    [labels]="electeursParSexeChartOptions.labels"
+                    [dataLabels]="electeursParSexeChartOptions.dataLabels"
+                    [title]="electeursParSexeChartOptions.title"
+                    [colors]="electeursParSexeChartOptions.colors"
+                    [responsive]="electeursParSexeChartOptions.responsive"
+                    ></apx-chart>
+                </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="col-12 md:col-12 lg:col-12" *ngIf="tableauBord && !isLoading && isDiaspora">
+    <div class="col-12">
+        <div class="row">
+            <p-table #dt1 [value]="tableauBord.electeurEtrangers" styleClass="p-datatable-gridlines" sortField="pays" [scrollable]="true" scrollHeight="500px">
+              <ng-template pTemplate="caption">
+                <span>Répartition des électeurs par pays de la diaspora</span>
+              </ng-template>
+
+                <ng-template   pTemplate="header"  let-columns>
+                <tr>
+                    <th class="text-center" style="width:40%" pSortableColumn="pays">Nom du pays <p-sortIcon field="pays"></p-sortIcon></th>
+                    <th class="text-center" style="width:20%" pSortableColumn="nombreElecteurs" style="min-width:10rem;">Electeurs <p-sortIcon field="nombreElecteurs"></p-sortIcon></th>
+                    <th class="text-center" style="width:20%" pSortableColumn="nombreHommes">Electeurs hommes<p-sortIcon field="nombreHommes"></p-sortIcon></th>
+                    <th class="text-center" style="width:20%" pSortableColumn="nombreFemmes">Electeurs femmes<p-sortIcon field="nombreFemmes"></p-sortIcon></th>
+                </tr>
+                <tr>
+                    <th>
+                    <input pInputText type="text" (input)="dt1.filter($any($event.target).value, 'pays', 'contains')" [value]="$any(dt1.filters['pays'])?.value" class="p-column-filter">
+                    </th>
+                    <th>
+                    </th>
+                    <th>
+                    </th>
+                    <th>
+                    </th>
+                </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-pays>
+                    <tr>
+                        <td>{{pays.pays}}</td>
+                        <td class="text-right">{{pays.nombreElecteurs | number: '1.0-0' | replace: ',':' '}}</td>
+                        <td class="text-right">{{pays.nombreHommes | number: '1.0-0' | replace: ',':' '}}</td>
+                        <td class="text-right">{{pays.nombreFemmes | number: '1.0-0' | replace: ',':' '}}</td>
+                    </tr>
+                </ng-template>
+              <ng-template pTemplate="footer" let-pays>
+                <tr *ngIf="tableauBord.electeurEtrangers && tableauBord.electeurEtrangers.length !== 0">
+                  <td class="text-right">TOTAL</td>
+                  <td class="text-right">{{totalElecteursDiaspora | number: '1.0-0' | replace: ',':' '}}</td>
+                  <td class="text-right">{{totalHommesDiaspora | number: '1.0-0' | replace: ',':' '}}</td>
+                  <td class="text-right">{{totalFemmesDiaspora | number: '1.0-0' | replace: ',':' '}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+

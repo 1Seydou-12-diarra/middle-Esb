@@ -1,0 +1,26 @@
+export const urls = {
+  auth: '/api/securite/auth',
+  departement: '/api/zone/departements',
+  sousPrefectures: '/api/zone/sous-prefectures',
+  tableauBordListeElectorale: '/api/electeur/tableauBord',
+  tableauBordSessionUssd: '/api/session-ussd/tableauBord',
+  commune: '/api/zone/communes',
+  bureauVote: '/api/bureau-vote/lister-pour-lieux-votes',
+  lieuVote: '/api/lieu-vote/lister-pour-communes',
+  consultation: '/api/edition-rapport/consultations',
+  chiffreAffaire: '/api/transaction/tableauBord',
+  listeUtilisateurs: '/api/utilisateur/liste',
+  addUtilisateur: '/api/utilisateur/enregistrer',
+  parametrage: '/api/parametrage',
+  imprimerConsultation: '/api/edition-rapport/imprimer/consultations',
+  imprimerChiffreAffaire: '/api/edition-rapport/imprimer/chiffre-affaires/',
+  imprimerDetailsChiffreAffaire: '/api/edition-rapport/imprimer/details-chiffre-affaires/',
+  listerImprimante: '/api/parametrage/imprimantes',
+  depotFichier: 'file-upload',
+  processFichier: 'file-process',
+  modifierPassword: '/api/utilisateur/modifier-password',
+  modifierEtatConnexion: '/api/utilisateur/modifier-deja-connecte',
+  listeApplication:'api/application/lister',
+  ajouterOuModifierApplication:'/enregistrerOuModifier'
+
+};

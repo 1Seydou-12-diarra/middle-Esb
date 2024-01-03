@@ -1,0 +1,41 @@
+.cadre-nombre .surface-card{
+    background-color: white !important;
+    h2{
+        color: #70726E;
+        margin-right: 1.5em;
+    }
+    span{
+        // margin-left: 3vw;
+         font-size: 15px;
+         text-transform: uppercase;
+         color: #70726E;
+         font-weight: bold;
+
+    }
+}
+
+.pi { 
+    color: orange;
+}
+::ng-deep {
+    .p-breadcrumb {
+      background: #c9dfcc;
+      border-color: #c9dfcc;
+      font-size: 20px;
+    }
+  }
+
+  ::ng-deep {
+    .p-calendar button {
+      background-color: #1da750 !important;
+      border-color: #1da750 !important;   
+    }
+    .p-calendar input {
+        background-color: white !important;
+        border-color: #1da750 !important;      
+      }  
+    .p-calendar button:hover{
+        background-color: #1da750 !important;
+        border-color: #1da750 !important;      
+      }
+  }

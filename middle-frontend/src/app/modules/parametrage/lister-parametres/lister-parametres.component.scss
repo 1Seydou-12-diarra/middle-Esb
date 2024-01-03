@@ -1,0 +1,28 @@
+
+.bouton-action {
+  height: 20px !important;
+  width: 20px;
+}
+
+
+  ::ng-deep {
+    
+    .p-datepicker-header{
+      display: none !important;
+    }
+    .text-left .p-calendar {
+      width: 12em !important;
+    }
+    p-inputMask {
+      .p-inputmask{
+        width: 5em !important;
+        text-align: center;
+      }
+      .p-inputmask::after{
+        border-color: gray !important;
+        box-shadow: 0 0 0 0.1rem gray !important;
+
+      }
+     
+    }
+  }

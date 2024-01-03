@@ -1,0 +1,54 @@
+<p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+<div class="row justify-content-center mt-3 ">
+  <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+    <div class="card col-7">
+        <div class="card flex text-center" >
+            <p-toast></p-toast>
+          <div class="text-center m-2">
+            <p-checkbox label="Liste provisoire ?" [binary]="true" [(ngModel)]="type"></p-checkbox>
+          </div>
+
+          <p-fileUpload #upload (uploadHandler)="onUpload($event)" [customUpload]="true"
+                          [invalidFileTypeMessageDetail]="detailsErreurFormatFichier" [invalidFileTypeMessageSummary]="ErreurFormatFichier" [multiple]="false" accept=".csv"
+                          cancelLabel="Annuler"
+                          chooseLabel="Choisir le fichier"
+                          uploadLabel="Charger">
+              <ng-template class="upload" pTemplate="content">
+                <ul *ngIf="uploadedFiles.length">
+                  <li *ngFor="let file of uploadedFiles">{{ file.name }} - {{ file.size }} bytes</li>
+                </ul>
+              </ng-template>
+            </p-fileUpload>
+        </div>
+        <div class="text-center">
+            <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+        </div>
+    </div>
+  </div>
+
+<p-dialog (onHide)="fermerModale()" [(visible)]="ouvrirModaleEnvoi" [closable]="false" [modal]="true"
+          [style]="{width: '550px'}" header="Chargement du fichier" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <p *ngIf="!isProcessing">
+      Voulez vous charger la liste électorale {{ type ? 'provisoire' : 'définitive' }} ayant {{ nombreLignes }} lignes ?
+      Une fois chargée, les données de tous les électeurs seront réinitialisées avec celles contenues dans ce fichier.
+    </p>
+    <p *ngIf="isProcessing">
+      Cette opération peut prendre quelques minutes. Veuillez patienter.
+    </p>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div *ngIf="isProcessing" class="text-center">
+      <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+    </div>
+    <div *ngIf="!isProcessing">
+      <button (click)="fermerModale()" class="p-button-text" icon="pi pi-times" label="Non" pButton pRipple></button>
+      <button (click)="onEnvoyerFichier()" class="p-button-text" icon="pi pi-check" label="Oui" pButton pRipple
+              type="submit"></button>
+    </div>
+
+  </ng-template>
+  </p-dialog>

@@ -1,0 +1,31 @@
+<div>
+	<app-header  [collapsed]="isSideNavCollapsed"
+				[screenWidth]="screenwidth">
+	</app-header>
+	<app-sidebar (onToggleSideNav)="onToggleSideNav($event)"></app-sidebar>
+</div>
+<div >
+	
+	<router-outlet></router-outlet>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!--
+<div *ngIf="!isConnexion()">
+	<app-header  [collapsed]="isSideNavCollapsed"
+				[screenWidth]="screenwidth">
+	</app-header>
+	<app-sidebar ></app-sidebar>
+</div>
+<div *ngIf="isConnexion()">
+	<router-outlet></router-outlet>
+</div>
+-->

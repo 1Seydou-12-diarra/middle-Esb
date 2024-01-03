@@ -1,0 +1,32 @@
+::ng-deep {
+  .p-breadcrumb {
+    background: #c9dfcc;
+    border-color: #c9dfcc;
+    font-size: 20px;
+  }
+}
+
+.cadre-nombre .surface-card{
+  background-color: white !important;
+  h2{
+    color: #70726E;
+    margin-right: 1.5em;
+  }
+  span{
+    // margin-left: 3vw;
+    font-size: 15px;
+    text-transform: uppercase;
+    color: #70726E;
+    font-weight: bold;
+
+  }
+}
+
+.bouton-action {
+  height: 20px !important;
+  width: 20px;
+}
+.label-required:after {
+  content: '*';
+  color: red;
+}

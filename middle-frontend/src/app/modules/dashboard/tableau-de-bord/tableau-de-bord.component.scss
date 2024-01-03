@@ -1,0 +1,52 @@
+.customProgress .ui-progressbar .ui-progressbar-label {
+    color: yellow;
+}
+// :host{
+//     ::ng-deep{
+//         #resultatParti{
+//             margin-top: 5rem !important;
+//         }
+//     }
+// }
+:host{
+    ::ng-deep{
+        #electeurParSexe{
+            //margin-left: 0rem !important;
+        }
+    }
+}
+
+#table{
+    
+    width:"2000px" !important;
+    height: "100px" !important;
+}
+
+.cadre-nombre .surface-card{
+    background-color: white !important;
+    h2{
+        // color: #E67B3B;
+        color: #70726E;
+        margin-right: 1.5em;
+    }
+    span{
+        // margin-left: 3vw;
+         font-size: 15px;
+         text-transform: uppercase;
+         color: #70726E;
+         font-weight: bold;
+    }
+}
+
+::ng-deep {
+    .p-breadcrumb {
+      background: #c9dfcc;
+      border-color: #c9dfcc;
+      font-size: 20px;
+    }
+  }
+
+#line{
+    height: 5em;
+}
+

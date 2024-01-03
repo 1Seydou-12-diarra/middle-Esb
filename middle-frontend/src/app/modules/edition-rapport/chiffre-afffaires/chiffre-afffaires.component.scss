@@ -1,0 +1,37 @@
+.boutonValiderVider{
+    margin-left: 40px;
+    button{
+        margin: 15px;
+    }
+}
+::ng-deep {
+    .p-breadcrumb {
+      background: #c9dfcc;
+      border-color: #c9dfcc;
+      font-size: 20px;
+    }
+  }
+
+  ::ng-deep {
+    .p-calendar button {
+      background-color: #1da750 !important;
+      border-color: #1da750 !important;      
+    }
+    .p-calendar input {
+        background-color: white !important;
+        border-color: #1da750 !important;      
+      }  
+    .p-calendar button:hover{
+        background-color: #1da750 !important;
+        border-color: #1da750 !important;      
+      }
+  }
+
+  .p-button{
+    background-color: #1da750 !important;
+    border-color: #1da750 !important;  
+  }
+
+  .p-button.p-button-text{
+    color: white !important;
+  }

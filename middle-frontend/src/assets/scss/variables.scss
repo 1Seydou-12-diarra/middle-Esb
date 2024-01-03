@@ -1,0 +1,11 @@
+//bootstrap
+@import "~bootstrap/scss/bootstrap";
+
+$theme-colors: map_merge($theme-colors, (      
+    "primaryBlue": #23235b,   
+    "primaryOrange": #e47c3c,   
+    "primaryDarken": darken(#397BCC, 10),     
+    "secondary":#214775,      
+    "gray":gray("500"),      
+    "grisBudgetee": #e4e4e4,      
+    "shadow": lighten(#397BCC, 20)));

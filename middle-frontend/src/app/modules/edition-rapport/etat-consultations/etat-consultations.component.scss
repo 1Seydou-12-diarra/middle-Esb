@@ -1,0 +1,81 @@
+tr {
+	height: 20px;
+}
+
+:host {
+	.enCours {
+		font-weight: 700;
+		color: #FFF;
+		background-color: #FF7F00 !important;
+		border-radius: 5px;
+		padding: 7px
+	}
+
+	.timeOut {
+		font-weight: 700;
+		color: #FFF;
+		background-color: #F00020 !important;
+		border-radius: 5px;
+		padding: 7px
+	}
+
+  .surface-card {
+    background-color: white !important;
+
+    h2 {
+      color: #70726E;
+      margin-right: 1.5em;
+    }
+
+    span {
+      // margin-left: 3vw;
+      font-size: 15px;
+      text-transform: uppercase;
+      color: #70726E;
+      font-weight: bold;
+
+    }
+  }
+
+	.terminee {
+		font-weight: 700;
+		color: #FFF;
+		background-color: #4FC031 !important;
+		border-radius: 5px;
+		padding: 7px
+	}
+}
+
+.boutonValiderVider{
+    margin-left: 40px;
+    button{
+        margin: 15px;
+    }
+}
+::ng-deep {
+	.p-breadcrumb {
+	  background: #c9dfcc;
+	  border-color: #c9dfcc;
+	  font-size: 20px;
+	}
+  }
+
+
+  ::ng-deep {
+    .p-calendar button {
+      background-color: #1da750 !important;
+      border-color: #1da750 !important;      
+    }
+    .p-calendar input {
+        background-color: white !important;
+        border-color: #1da750 !important;      
+      }  
+    .p-calendar button:hover{
+        background-color: #1da750 !important;
+        border-color: #1da750 !important;      
+      }
+  }
+  
+  ::ng-deep .p-datepicker .p-datepicker-buttonbar .p-button.p-button-text {
+	color: #1da750;
+  }

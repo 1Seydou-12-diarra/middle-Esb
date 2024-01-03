@@ -1,0 +1,151 @@
+<div>
+  <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+</div>
+<div class="row mt-1">
+   <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+  <div class="card col-12">
+    <p-toolbar styleClass="mb-4 gap-2">
+      <ng-template pTemplate="left">
+        <div>
+          <p-calendar
+            #periode
+            (onSelect)="onSelectDate()"
+            [(ngModel)]="periodesSelectionnees"
+            [multipleSeparator]="'/'"
+            selectionMode="range"
+            placeholder="Choisir une période"
+            [readonlyInput]="true"
+            appendTo="body"
+            [monthNavigator]="true"
+            [yearNavigator]="true"
+            [icon]="periode.overlayVisible ? 'pi pi-times' : 'pi pi-calendar'"
+            [showIcon]="false"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"></p-calendar>
+        </div>
+        <div class="pull-right boutonValiderVider">
+          <button [disabled]="!peutRechercher()" pButton pRipple type="button"
+                  icon="pi pi-search"
+                  pTooltip="Rechercher"
+                  class="p-button-rounded p-button-raised bg-green-600 p-button-text text-50 hover:bg-orange-400 p-button-sm"
+                  (click)="rechercher()">
+          </button>
+          <button pButton pRipple type="button"
+                  icon="pi pi-times"
+                  pTooltip="Vider"
+                  class="p-button-rounded p-button-raised bg-orange-400 p-button-text text-50 hover:bg-green-600 p-button-sm"
+                  (click)="viderfiltre()">
+          </button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button [disabled]="!peutRechercher()" (onClick)="impremerConsultation()" class="mr-5" icon="pi pi-print" label="Imprimer"
+                  [style]="{color:'white',background:'#E67B3B', border: '0px'}"></p-button>
+        <p-button (onClick)="showModalDialog()" icon="pi pi-upload" label="Exporter"
+                  [style]="{color:'white',background:'#E67B3B', border: '0px'}"></p-button>
+      </ng-template>
+    </p-toolbar>
+    <p-table #dt1 [value]="consultations" dataKey="id" [sortOrder]="-1" styleClass="p-datatable-gridlines"
+             sortField="dateConsultation" [scrollable]="true" [tableStyle]="{'min-width': '10rem'}"
+             [rows]="12" [paginator]="true" scrollHeight="500px" [rowsPerPageOptions]="[10,25,50]">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="text-center" style="width:20%" pSortableColumn="dateConsultation">Date de consultation
+            <p-sortIcon field="dateConsultation"></p-sortIcon>
+          </th>
+
+          <th class="text-center" style="width:20%" pSortableColumn="operateur">Opérateur
+            <p-sortIcon field="operateur"></p-sortIcon>
+          </th>
+          <th class="text-center" style="width:20%" pSortableColumn="numeroAbonne">Numéro abonné
+            <p-sortIcon field="numeroAbonne"></p-sortIcon>
+          </th>
+          <th class="text-center" style="width:20%" pSortableColumn="dureeSession">Durée de la session
+            <p-sortIcon field="dureeSession"></p-sortIcon>
+          </th>
+          <th class="text-center" pSortableColumn="statut">Statut
+            <p-sortIcon field="statut"></p-sortIcon>
+          </th>
+        </tr>
+        <tr>
+          <th>
+            <input pInputText type="text"
+                   (input)="dt1.filter($any($event.target).value, 'dateConsultation', 'contains')"
+                   [value]="$any(dt1.filters['dateConsulation'])?.value" class="p-column-filter">
+          </th>
+          <th>
+            <p-columnFilter field="operateur" matchMode="equals" [showMenu]="false">
+              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                <p-dropdown [ngModel]="value" [options]="listeOperateur" appendTo="body"
+                            (onChange)="filter($event.value)" placeholder="TOUS" [showClear]="true">
+                  <ng-template let-option pTemplate="item">
+                    <span [class]="option">{{option}}</span>
+                  </ng-template>
+                </p-dropdown>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+          <th>
+            <input pInputText type="text" (input)="dt1.filter($any($event.target).value, 'numeroAbonne', 'contains')"
+                   [value]="$any(dt1.filters['numeroAbonne'])?.value" class="p-column-filter">
+          </th>
+          <th>
+            <input pInputText type="text" (input)="dt1.filter($any($event.target).value, 'dureeSession', 'contains')"
+                   [value]="$any(dt1.filters['dureeSession'])?.value" class="p-column-filter">
+          </th>
+          <th>
+            <p-columnFilter field="statut" matchMode="equals" [showMenu]="false">
+              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                <p-dropdown [ngModel]="value" [options]="statut" appendTo="body" (onChange)="filter($event.value)"
+                            placeholder="TOUS" [showClear]="true">
+                  <ng-template let-option pTemplate="item">
+                    <span [class]="option.value">{{option.label}}</span>
+                  </ng-template>
+                </p-dropdown>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-consultation>
+        <tr style="height: 45px !important;">
+          <td class="text-center">{{consultation.dateConsultation }}</td>
+          <td class="text-center">{{consultation.operateur}}</td>
+          <td class="text-center">{{consultation.numeroAbonne}}</td>
+          <td class="text-right">{{consultation.dureeSession}} min</td>
+          <td>
+            <div
+              [ngClass]="{'enCours': consultation.statut === EN_COURS, 'timeOut': consultation.statut === TIMEOUT, 'terminee': consultation.statut === TERMINEE}"
+              class="text-center">
+              {{ consultation.statut === EN_COURS ? 'En cours' : consultation.statut === TERMINEE ? 'Terminée' : consultation.statut === TIMEOUT ? 'Interrompue' : ''}}
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td class="text-center" colspan="6">Aucune consultation trouvée.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p-dialog header="Choisir le format d'exportation " [(visible)]="displayModal" [modal]="true"
+              [style]="{width: '20vw',height:'10vw'}" [baseZIndex]="10000"
+              [draggable]="false" [resizable]="false">
+      <div class="text-center">
+        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+                class="p-button-success mr-5" pTooltip="Export XLS" tooltipPosition="bottom">Excel
+        </button>
+        <button type="button" pButton pRipple icon="pi pi-file" class="p-button-warning mr-2" pTooltip="Export CSV"
+                tooltipPosition="bottom" (click)="exportCSV()"> Csv
+        </button>
+      </div>
+    </p-dialog>
+  </div>
+  <div class="text-center">
+    <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+  </div>
+</div>

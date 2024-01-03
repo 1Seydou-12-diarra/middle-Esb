@@ -1,0 +1,217 @@
+<div>
+  <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+</div>
+<div class="grid justify-content-center mt-1">
+    <span *ngIf="messageActif" class="flex justify-content-center mt-1">
+          <p-messages [(value)]="messageErreur" ></p-messages>
+        </span>
+  <div class="surface-card shadow-3 border-round" [style]="{width: '2000px',height: '100px'}">
+    <div class="col-12">
+      <div class="flex flex-wrap">
+        <div>
+          <div>
+            <label [ngClass]="">Période</label>
+          </div>
+          <p-calendar
+            #periode
+            (onSelect)="onSelectDate()"
+            [(ngModel)]="periodesSelectionnees"
+            [multipleSeparator]="'/'"
+            selectionMode="range"
+            placeholder="Choisir une période"
+            [readonlyInput]="true"
+            appendTo="body"
+            [monthNavigator]="true"
+            [yearNavigator]="true"
+            [icon]="periode.overlayVisible ? 'pi pi-times' : 'pi pi-calendar'"
+            [showButtonBar]="true"
+            [locale]="locale" *ngIf="locale"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true" >
+          </p-calendar>
+        </div>
+        <div class="ml-7 mt-4">
+          <button [disabled]="!peutRechercher()" pButton pRipple type="button"
+            icon="pi pi-search"
+            pTooltip="Rechercher"
+            class="p-button-rounded  p-button-raised bg-green-600 p-button-text text-50 hover:bg-orange-400 p-button-sm"
+            (click)="rechercher()">
+        </button>
+        <button pButton pRipple type="button"
+            icon="pi pi-times"
+            pTooltip="Vider"
+            class="p-button-rounded ml-5 p-button-raised bg-orange-400 p-button-text text-50 hover:bg-green-600 p-button-sm"
+            (click)="viderfiltre()">
+        </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="text-center">
+  <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+</div>
+
+<div class="col-12" *ngIf="!isLoading">
+  <div class="container-fluid mt-2 ">
+    <div class="row">
+      <div class="cadre-nombre col-xl-3 col-md-6 col-sm-12 p-1">
+        <div class="surface-card shadow-5 p-2 border-round">
+          <div class="flex justify-content-between mb-3">
+            <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                 style="width:4rem;height:4rem">
+              <i class="fa fa-compress" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+            </div>
+            <div>
+              <h2>{{ tableau?.totalSession | number: '1.0-0' | replace: ',':' '}}</h2>
+            </div>
+          </div>
+          <div class="text-center">
+            <span>Sessions</span>
+          </div>
+        </div>
+      </div>
+      <div class="cadre-nombre col-xl-3 col-md-6 col-sm-12 p-1 ">
+        <div class="surface-card shadow-5 p-2 border-round">
+          <div class="flex justify-content-between mb-3">
+            <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                 style="width:4rem;height:4rem">
+              <i class="fa fa-refresh" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+            </div>
+            <div>
+              <h2>{{ tableau?.sessionEnCours | number: '1.0-0' | replace: ',':' ' }}</h2>
+            </div>
+          </div>
+          <div class="text-center">
+            <span>Sessions en cours</span>
+          </div>
+        </div>
+      </div>
+      <div class="cadre-nombre col-xl-3 col-md-6 col-sm-12 p-1 ">
+        <div class="surface-card shadow-5 p-2 border-round">
+          <div class="flex justify-content-between mb-3">
+            <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                 style="width:4rem;height:4rem">
+              <i class="fa fa-exclamation-circle" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+            </div>
+            <div>
+              <h2>{{ tableau?.sessionTimeout | number: '1.0-0' | replace: ',':' '  }}</h2>
+            </div>
+          </div>
+          <div class="text-center">
+            <span>Sessions interrompues</span>
+          </div>
+        </div>
+      </div>
+      <div class="cadre-nombre col-xl-3 col-md-6 col-sm-12 p-1 ">
+        <div class="surface-card shadow-5 p-2 border-round">
+          <div class="flex justify-content-between mb-3">
+            <div class="flex align-items-center justify-content-center bg-blue-10 br-5 border-round"
+                 style="width:4rem;height:4rem">
+              <i class="fa fa-check" aria-hidden="true" style="font-size: 3em;color: rgb(77, 165, 48);"></i>
+            </div>
+            <div>
+              <h2>{{ tableau?.sessionTerminee | number: '1.0-0' | replace: ',':' '}}</h2>
+            </div>
+          </div>
+          <div class="text-center">
+            <span>Sessions terminées</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-12 md:col-12 lg:col-12" *ngIf="tableau && !isLoading">
+  <div class=" col-12">
+    <div class="row">
+      <div *ngIf="tableau.totalSession && tableau.totalSession !== 0"
+           class="col-xl-5 col-sm-12 bg-blue-50 shadow-3 ml-8  mr-8  border-round ">
+        <div id="totalSession" style="">
+          <apx-chart
+            [series]="sessionTotalOperateursChartOptions.series"
+            [chart]="sessionTotalOperateursChartOptions.chart"
+            [labels]="sessionTotalOperateursChartOptions.labels"
+            [dataLabels]="sessionTotalOperateursChartOptions.dataLabels"
+            [title]="sessionTotalOperateursChartOptions.title"
+            [plotOptions]="sessionTotalOperateursChartOptions.plotOptions"
+            [colors]="couleursOperateurGlobal"
+            [xaxis]="sessionTotalOperateursChartOptions.xaxis"
+            [responsive]="sessionTotalOperateursChartOptions.responsive"
+            [tooltip]="sessionTermineeOperateursChartOptions.tooltip"
+						[legend]="sessionTermineeOperateursChartOptions.legend"
+						[fill]="sessionTermineeOperateursChartOptions.fill"
+          ></apx-chart>
+        </div>
+      </div>
+      <div *ngIf="tableau.sessionEnCours && tableau.sessionEnCours !== 0"
+           class="col-xl-5 col-sm-12 bg-blue-50 shadow-3 p-3  border-round" [ngClass]="{ 'ml-8  mr-8': tableau.totalSession === 0 }">
+        <div id="enCoursSession" style="">
+          <apx-chart
+            [series]="sessionEnCoursOperateursChartOptions.series"
+            [chart]="sessionEnCoursOperateursChartOptions.chart"
+            [labels]="sessionEnCoursOperateursChartOptions.labels"
+            [dataLabels]="sessionEnCoursOperateursChartOptions.dataLabels"
+            [title]="sessionEnCoursOperateursChartOptions.title"
+            [plotOptions]="sessionTotalOperateursChartOptions.plotOptions"
+            [colors]="couleursOperateurEnCours"
+            [xaxis]="sessionEnCoursOperateursChartOptions.xaxis"
+            [responsive]="sessionEnCoursOperateursChartOptions.responsive"
+            [tooltip]="sessionTermineeOperateursChartOptions.tooltip"
+						[legend]="sessionTermineeOperateursChartOptions.legend"
+						[fill]="sessionTermineeOperateursChartOptions.fill"
+          ></apx-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-12 md:col-12 lg:col-12" *ngIf="tableau && !isLoading">
+  <div class="col-12">
+    <div class="row">
+      <div *ngIf="tableau.sessionTerminee && tableau.sessionTerminee !== 0"
+           class="col-xl-5 col-sm-12 bg-blue-50 shadow-3   ml-8  mr-8 border-round ">
+        <div id="termineeSession" style="">
+          <apx-chart
+            [series]="sessionTermineeOperateursChartOptions.series"
+            [chart]="sessionTermineeOperateursChartOptions.chart"
+            [labels]="sessionTermineeOperateursChartOptions.labels"
+            [dataLabels]="sessionTermineeOperateursChartOptions.dataLabels"
+            [title]="sessionTermineeOperateursChartOptions.title"
+            [plotOptions]="sessionTotalOperateursChartOptions.plotOptions"
+            [colors]="couleursOperateurTermine"
+            [xaxis]="sessionTermineeOperateursChartOptions.xaxis"
+            [responsive]="sessionTermineeOperateursChartOptions.responsive"
+            [tooltip]="sessionTermineeOperateursChartOptions.tooltip"
+						[legend]="sessionTermineeOperateursChartOptions.legend"
+						[fill]="sessionTermineeOperateursChartOptions.fill"
+          ></apx-chart>
+        </div>
+      </div>
+      <div *ngIf="tableau.sessionTimeout && tableau.sessionTimeout !== 0"
+           class="col-xl-5 col-sm-12 bg-blue-50 shadow-3 p-3  border-round " [ngClass]="{ 'ml-8  mr-8': tableau.sessionTerminee === 0 }">
+        <div id="timeout" style="">
+          <apx-chart
+            [series]="sessionTimeoutOperateursChartOptions.series"
+            [chart]="sessionTimeoutOperateursChartOptions.chart"
+            [labels]="sessionTimeoutOperateursChartOptions.labels"
+            [dataLabels]="sessionTimeoutOperateursChartOptions.dataLabels"
+            [title]="sessionTimeoutOperateursChartOptions.title"
+            [plotOptions]="sessionTimeoutOperateursChartOptions.plotOptions"
+            [colors]="couleursOperateurTimeout"
+            [xaxis]="sessionTimeoutOperateursChartOptions.xaxis"
+            [responsive]="sessionTimeoutOperateursChartOptions.responsive"
+            [tooltip]="sessionTimeoutOperateursChartOptions.tooltip"
+            [legend]="sessionTimeoutOperateursChartOptions.legend"
+            [fill]="sessionTimeoutOperateursChartOptions.fill"
+          ></apx-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

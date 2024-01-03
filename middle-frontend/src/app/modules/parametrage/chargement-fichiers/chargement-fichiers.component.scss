@@ -1,0 +1,13 @@
+::ng-deep {
+    .p-fileupload .p-fileupload-content {
+        padding: 0 !important;
+    }
+}
+
+::ng-deep {
+    .p-breadcrumb {
+      background: #c9dfcc;
+      border-color: #c9dfcc;
+      font-size: 20px;
+    }
+  }
